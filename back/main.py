@@ -31,7 +31,6 @@ class CV(SQLModel, table=True):
     path: str
     applications: list[Application] = Relationship(back_populates="cv")
 
-
 # FastAPI app
 app = FastAPI()
 
@@ -112,3 +111,140 @@ async def delete_company(
     session.delete(company)
     session.commit()
     return company
+
+## Offers
+
+# Create a new offer
+@app.post("/offers/", response_model=Offer)
+async def create_offer(
+    offer: Offer,
+    session: Session = Depends(get_session)
+):
+    session.add(offer)
+    session.commit()
+    session.refresh(offer)
+    return offer
+
+# Read all offers
+@app.get("/offers/")
+async def get_offers(
+    skip: int = 0,
+    limit: int = 10,
+    session: Session = Depends(get_session)
+):
+    offers = session.exec(select(Offer).offset(skip).limit(limit)).all()
+    return offers
+
+# Read a single offer
+@app.get("/offers/{offer_id}", response_model=Offer)
+async def get_offer(
+    offer_id: int,
+    session: Session = Depends(get_session)
+):
+    offer = session.get(Offer, offer_id)
+    if not offer:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    return offer
+
+# Update an offer
+@app.put("/offers/{offer_id}", response_model=Offer)
+async def update_offer(
+    offer_id: int,
+    offer_data: Offer,
+    session: Session = Depends(get_session)
+):
+    offer = session.get(Offer, offer_id)
+    if not offer:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
+    for key, value in offer_data.model_dump().items():
+        setattr(offer, key, value)
+    
+    session.commit()
+    session.refresh(offer)
+    return offer
+
+# Delete an offer
+@app.delete("/offers/{offer_id}")
+async def delete_offer(
+    offer_id: int,
+    session: Session = Depends(get_session)
+):
+    offer = session.get(Offer, offer_id)
+    if not offer:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
+    session.delete(offer)
+    session.commit()
+    return offer
+
+## Applications
+
+# Create a new application
+@app.post("/applications/", response_model=Application)
+async def create_application(
+    application: Application,
+    session: Session = Depends(get_session)
+):
+    session.add(application)
+    session.commit()
+    session.refresh(application)
+    return application
+
+# Read all applications
+@app.get("/applications/")
+async def get_applications(
+    skip: int = 0,
+    limit: int = 10,
+    session: Session = Depends(get_session)
+):
+    applications = session.exec(select(Application).offset(skip).limit(limit)).all()
+    return applications
+
+# Read a single application
+@app.get("/applications/{application_id}", response_model=Application)
+async def get_application(
+    application_id: int,
+    session: Session = Depends(get_session)
+):
+    application = session.get(Application, application_id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    return application
+
+# Update an application
+@app.put("/applications/{application_id}", response_model=Application)
+async def update_application(
+    application_id: int,
+    application_data: Application,
+    session: Session = Depends(get_session)
+):
+    application = session.get(Application, application_id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    for key, value in application_data.model_dump().items():
+        setattr(application, key, value)
+    
+    session.commit()
+    session.refresh(application)
+    return application
+
+# Delete an application
+@app.delete("/applications/{application_id}")
+async def delete_application(
+    application_id: int,
+    session: Session = Depends(get_session)
+):
+    application = session.get(Application, application_id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    session.delete(application)
+    session.commit()
+    return application
+
+## CVs
+
+# TODO : CRUD for CVs
+# Read should return the file path to the CV, and the name of the CV. The file itself will be stored in a folder on the server, and the path will be used to access it. The name will be used to display the CV in the frontend.
