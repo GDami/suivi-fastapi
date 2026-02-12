@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import SQLModel, Field, Session, create_engine, select, Relationship
 
@@ -6,25 +7,29 @@ class Company(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
     name: str
     link: str | None = None
+    offers: list["Offer"] = Relationship(back_populates="company")
 
 class Offer(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
-    company_id: int = Field(foreign_key="company.id")
     link: str
     titre: str
     description: str
+    company_id: int | None = Field(default=None, foreign_key="company.id")
+    company: Company = Relationship(back_populates="offers")
+    application_id: int | None = Field(default=None, foreign_key="application.id")
 
 class Application(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
-    offer_id: int = Field(foreign_key="offer.id")
-    offer: Offer = Relationship(back_populates="applications")
-    cv_id: int = Field(foreign_key="cv.id")
     date: str
+    offer_id: int | None = Field(default=None, foreign_key="offer.id")
+    cv_id: int | None = Field(default=None, foreign_key="cv.id")
+    cv: "CV" = Relationship(back_populates="applications")
 
 class CV(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
     name: str
     path: str
+    applications: list[Application] = Relationship(back_populates="cv")
 
 
 # FastAPI app
