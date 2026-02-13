@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import SQLModel, Field, Session, create_engine, select, Relationship
@@ -16,12 +17,13 @@ class Offer(SQLModel, table=True):
     description: str
     company_id: int | None = Field(default=None, foreign_key="company.id")
     company: Company = Relationship(back_populates="offers")
-    application_id: int | None = Field(default=None, foreign_key="application.id")
+    applications: list["Application"] = Relationship(back_populates="offer")
 
 class Application(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
-    date: str
+    date: datetime
     offer_id: int | None = Field(default=None, foreign_key="offer.id")
+    offer: Offer = Relationship(back_populates="applications")
     cv_id: int | None = Field(default=None, foreign_key="cv.id")
     cv: "CV" = Relationship(back_populates="applications")
 
@@ -186,6 +188,7 @@ async def create_application(
     application: Application,
     session: Session = Depends(get_session)
 ):
+    application.date = datetime.now()
     session.add(application)
     session.commit()
     session.refresh(application)
