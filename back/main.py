@@ -1,44 +1,18 @@
 from datetime import datetime
-from typing import Optional
-from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import SQLModel, Field, Session, create_engine, select, Relationship
+from enum import Enum
+from typing import Literal, Optional
+from fastapi import FastAPI, Depends, HTTPException, Query
+from pydantic import BaseModel
+from sqlmodel import SQLModel, Session, create_engine, select
 
-# Define models
-class Company(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, index=True)
-    name: str
-    link: str | None = None
-    offers: list["Offer"] = Relationship(back_populates="company")
-
-class Offer(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, index=True)
-    link: str
-    titre: str
-    description: str
-    company_id: int | None = Field(default=None, foreign_key="company.id")
-    company: Company = Relationship(back_populates="offers")
-    applications: list["Application"] = Relationship(back_populates="offer")
-
-class Application(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, index=True)
-    date: datetime
-    offer_id: int | None = Field(default=None, foreign_key="offer.id")
-    offer: Offer = Relationship(back_populates="applications")
-    cv_id: int | None = Field(default=None, foreign_key="cv.id")
-    cv: "CV" = Relationship(back_populates="applications")
-
-class CV(SQLModel, table=True):
-    id: int | None = Field(primary_key=True, index=True)
-    name: str
-    path: str
-    applications: list[Application] = Relationship(back_populates="cv")
+from models import ApplicationListResponse, Company, Offer, Application, CV, ApplicationStatus
 
 # FastAPI app
 app = FastAPI()
 
 # Database setup
 DATABASE_URL = "sqlite:///./database.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}, echo=True)
 SQLModel.metadata.create_all(engine)
 
 # Dependency to get DB session
@@ -47,6 +21,10 @@ def get_session():
         yield session
 
 ### Endpoints
+
+class SortOrder(Enum):
+    ASCENDING = 1
+    DESCENDING = 2
 
 ## Companies
 
@@ -69,6 +47,7 @@ async def get_companies(
     session: Session = Depends(get_session)
 ):
     companies = session.exec(select(Company).offset(skip).limit(limit)).all()
+    print(companies)
     return companies
 
 # Read a single company
@@ -160,7 +139,8 @@ async def update_offer(
         raise HTTPException(status_code=404, detail="Offer not found")
     
     for key, value in offer_data.model_dump().items():
-        setattr(offer, key, value)
+        if value is not None:
+            setattr(offer, key, value)
     
     session.commit()
     session.refresh(offer)
@@ -182,27 +162,85 @@ async def delete_offer(
 
 ## Applications
 
+class ApplicationSortBy(str, Enum):
+    OFFER_TITLE = "offer_title"
+    COMPANY = "company"
+    DATE_APPLIED = "date_applied"
+
+def populate_application_response(application: Application) -> ApplicationListResponse:
+    response: ApplicationListResponse = {
+        **application.__dict__,
+        "offer_title" : application.offer.titre if application.offer else None,
+        "company_name" : application.offer.company.name if application.offer and application.offer.company else None
+    }
+    return response
+
+# Get applications with filters and sorting
+@app.get("/applications/")
+async def get_applications(
+    skip: int = 0,
+    limit: int = 10,
+    query: Optional[str] = None,
+    # sort_by: Optional[ApplicationSortBy] = None,
+    sort_by: Optional[ApplicationSortBy] = Query(None),
+    sort_order: Optional[str] = "asc",
+    session: Session = Depends(get_session)
+):
+    applications_query = select(Application)
+    
+    if query or sort_by == ApplicationSortBy.OFFER_TITLE:
+        applications_query = applications_query.join(Offer)
+
+    if query:
+        applications_query = applications_query.where(
+            Offer.titre.contains(query) | Application.notes.contains(query)
+        )
+    
+    if sort_by:
+
+        match sort_by:
+            case ApplicationSortBy.OFFER_TITLE:
+                applications_query = applications_query.order_by(
+                    Offer.titre.asc() if sort_order == "asc" else Offer.titre.desc()
+            )
+            case ApplicationSortBy.COMPANY:
+                applications_query = applications_query.join(Company).order_by(
+                    Company.name.asc() if sort_order == "asc" else Company.name.desc()
+            )
+            case ApplicationSortBy.DATE_APPLIED:
+                applications_query = applications_query.order_by(
+                    Application.date_applied.asc() if sort_order == "asc" else Application.date_applied.desc()
+            )
+    
+    applications = session.exec(
+        applications_query.offset(skip).limit(limit)
+    ).all()
+    applications = list(map(populate_application_response, applications))
+    return applications
+    
+
 # Create a new application
 @app.post("/applications/", response_model=Application)
 async def create_application(
     application: Application,
     session: Session = Depends(get_session)
 ):
-    application.date = datetime.now()
+    application.date_applied = datetime.now()
+    application.status = ApplicationStatus.APPLIED
     session.add(application)
     session.commit()
     session.refresh(application)
     return application
 
 # Read all applications
-@app.get("/applications/")
-async def get_applications(
-    skip: int = 0,
-    limit: int = 10,
-    session: Session = Depends(get_session)
-):
-    applications = session.exec(select(Application).offset(skip).limit(limit)).all()
-    return applications
+# @app.get("/applications/")
+# async def get_applications(
+#     skip: int = 0,
+#     limit: int = 10,
+#     session: Session = Depends(get_session)
+# ):
+#     applications = session.exec(select(Application).offset(skip).limit(limit)).all()
+#     return applications
 
 # Read a single application
 @app.get("/applications/{application_id}", response_model=Application)
@@ -227,7 +265,8 @@ async def update_application(
         raise HTTPException(status_code=404, detail="Application not found")
     
     for key, value in application_data.model_dump().items():
-        setattr(application, key, value)
+        if value is not None:
+            setattr(application, key, value)
     
     session.commit()
     session.refresh(application)
