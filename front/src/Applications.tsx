@@ -1,3 +1,5 @@
+import ApplicationList from "./components/ApplicationList"
+import PageTitle from "./components/PageTitle"
 import Sidebar from "./components/Sidebar"
 import Page from "./layout/Page"
 
@@ -7,9 +9,10 @@ function Applications() {
     <div className="flex">
         <Sidebar />
         <Page>
-          <h1 className="text-3xl font-bold">
+          <PageTitle>
               suivi - Applications
-          </h1>
+          </PageTitle>
+          <ApplicationList />
         </Page>
     </div>
   )

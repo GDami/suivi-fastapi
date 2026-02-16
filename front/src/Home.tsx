@@ -1,3 +1,4 @@
+import PageTitle from "./components/PageTitle"
 import Sidebar from "./components/Sidebar"
 import Page from "./layout/Page"
 
@@ -7,9 +8,9 @@ function Home() {
     <div className="flex">
         <Sidebar />
         <Page>
-          <h1 className="text-3xl font-bold">
+          <PageTitle>
               suivi - Home
-          </h1>
+          </PageTitle>
         </Page>
     </div>
   )
