@@ -170,7 +170,7 @@ class ApplicationSortBy(str, Enum):
 def populate_application_response(application: Application) -> ApplicationListResponse:
     response: ApplicationListResponse = {
         **application.__dict__,
-        "offer_title" : application.offer.titre if application.offer else None,
+        "offer_title" : application.offer.title if application.offer else None,
         "company_name" : application.offer.company.name if application.offer and application.offer.company else None
     }
     return response
@@ -193,7 +193,7 @@ async def get_applications(
 
     if query:
         applications_query = applications_query.where(
-            Offer.titre.contains(query) | Application.notes.contains(query)
+            Offer.title.contains(query) | Application.notes.contains(query)
         )
     
     if sort_by:
@@ -201,7 +201,7 @@ async def get_applications(
         match sort_by:
             case ApplicationSortBy.OFFER_TITLE:
                 applications_query = applications_query.order_by(
-                    Offer.titre.asc() if sort_order == "asc" else Offer.titre.desc()
+                    Offer.title.asc() if sort_order == "asc" else Offer.title.desc()
             )
             case ApplicationSortBy.COMPANY:
                 applications_query = applications_query.join(Company).order_by(

@@ -14,7 +14,7 @@ class Company(SQLModel, table=True):
 class Offer(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
     link: str
-    titre: str
+    title: str
     description: str
     company_id: int | None = Field(default=None, foreign_key="company.id")
     company: Company = Relationship(back_populates="offers")
