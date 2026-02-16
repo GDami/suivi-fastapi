@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Literal, Optional
 from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import SQLModel, Session, create_engine, select
 
@@ -9,6 +10,18 @@ from models import ApplicationListResponse, Company, Offer, Application, CV, App
 
 # FastAPI app
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 # Database setup
 DATABASE_URL = "sqlite:///./database.db"
