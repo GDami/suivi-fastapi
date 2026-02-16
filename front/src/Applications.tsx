@@ -10,7 +10,7 @@ function Applications() {
         <Sidebar />
         <Page>
           <PageTitle>
-              suivi - Applications
+              suivi - Candidatures
           </PageTitle>
           <ApplicationList />
         </Page>

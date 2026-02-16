@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import ApplicationRow from "./ApplicationRow";
 
 const ApplicationStatus = {
     APPLIED: 1,
@@ -7,7 +8,7 @@ const ApplicationStatus = {
     ACCEPTED: 4
 }
 
-type ApplicationResponseModel = {
+export type ApplicationResponseModel = {
     id: number
     cv_id: number | null
     offer_id: number
@@ -15,6 +16,7 @@ type ApplicationResponseModel = {
     status: keyof typeof ApplicationStatus
     notes: string | null
     offer_title: string | null
+    offer_link: string | null
     company_name: string | null
 }
 
@@ -26,34 +28,26 @@ const fetchApplications = async() => {
 }
 
 export default function ApplicationList() {
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError } = useQuery<ApplicationListResponse>({
         queryKey: ["applications"],
         queryFn: fetchApplications,
+        initialData: [],
     });
-
-    console.log(data)
 
     if (isLoading) {
         return <div className="p-4">Loading applications...</div>;
     }
 
+    if (isError) {
+        return <div className="p-4 text-red-500">Error fetching applications.</div>;
+    }
+
     return (
         <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Applications</h2>
+            <h2 className="text-xl font-semibold mb-4">Candidatures</h2>
             <ul className="space-y-4">
-                {data.map((app: ApplicationResponseModel) => (
-                    <li key={app.id} className="border p-4 rounded shadow">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h3 className="font-bold">{app.offer_title}</h3>
-                                <p className="text-sm text-gray-600">{app.company_name}</p>
-                            </div>
-                            <span className="text-sm text-gray-500">{app.date_applied}</span>
-                        </div>
-                        {app.notes && (
-                            <p className="mt-2 text-sm text-gray-700">{app.notes}</p>
-                        )}
-                    </li>
+                {data.map((app) => (
+                    <ApplicationRow key={app.id} {...app} />
                 ))}
             </ul>
         </div>

@@ -9,7 +9,7 @@ function Home() {
         <Sidebar />
         <Page>
           <PageTitle>
-              suivi - Home
+              suivi - Accueil
           </PageTitle>
         </Page>
     </div>

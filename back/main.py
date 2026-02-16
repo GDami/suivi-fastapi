@@ -184,6 +184,7 @@ def populate_application_response(application: Application) -> ApplicationListRe
     response: ApplicationListResponse = {
         **application.__dict__,
         "offer_title" : application.offer.title if application.offer else None,
+        "offer_link" : application.offer.link if application.offer else None,
         "company_name" : application.offer.company.name if application.offer and application.offer.company else None
     }
     return response
