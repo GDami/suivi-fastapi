@@ -7,7 +7,7 @@ const styles = {
 
 export default function Sidebar() {
     return (
-        <aside className="w-64 h-screen bg-gray-800 text-white p-4">
+        <aside className="w-64 min-h-screen bg-gray-800 text-white p-4">
             <h2 className={styles.h2}>suivi-v2</h2>
             <ul>
                 <li className={styles.li}><Link to="/home" className="hover:text-gray-400">Accueil</Link></li>
