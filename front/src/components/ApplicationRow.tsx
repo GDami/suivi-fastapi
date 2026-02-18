@@ -2,7 +2,7 @@ import type { ApplicationResponseModel } from "./ApplicationList";
 
 export default function ApplicationRow(data: ApplicationResponseModel) {
 
-    console.log(data)
+    console.log(data.status)
     return (
         <li key={data.id} className="border p-4 rounded shadow">
             <div className="flex justify-between items-center">

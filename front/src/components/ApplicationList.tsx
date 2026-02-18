@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import ApplicationRow from "./ApplicationRow";
 
-const ApplicationStatus = {
-    APPLIED: 1,
-    INTERVIEWING: 2,
-    REJECTED: 3,
-    ACCEPTED: 4
+type ApplicationStatus = {
+    APPLIED: "Applied",
+    INTERVIEWING: "Interviewing",
+    REJECTED: "Rejected",
+    ACCEPTED: "Accepted"
 }
 
 export type ApplicationResponseModel = {
@@ -13,7 +13,7 @@ export type ApplicationResponseModel = {
     cv_id: number | null
     offer_id: number
     date_applied: string
-    status: keyof typeof ApplicationStatus
+    status: ApplicationStatus
     notes: string | null
     offer_title: string | null
     offer_link: string | null
@@ -22,13 +22,13 @@ export type ApplicationResponseModel = {
 
 type ApplicationListResponse = ApplicationResponseModel[]
 
-const fetchApplications = async() => {
+const fetchApplications = async(): Promise<ApplicationListResponse> => {
     const res = await fetch("http://localhost:8000/applications")
     return res.json()
 }
 
 export default function ApplicationList() {
-    const { data, isLoading, isError } = useQuery<ApplicationListResponse>({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ["applications"],
         queryFn: fetchApplications,
         initialData: [],
@@ -44,9 +44,9 @@ export default function ApplicationList() {
 
     return (
         <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Candidatures</h2>
+            <h2 className="text-xl font-semibold mb-4">Candidatures ({data.length})</h2>
             <ul className="space-y-4">
-                {data.map((app) => (
+                {data.map((app: ApplicationResponseModel) => (
                     <ApplicationRow key={app.id} {...app} />
                 ))}
             </ul>
