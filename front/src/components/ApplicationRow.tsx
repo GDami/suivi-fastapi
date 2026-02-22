@@ -1,25 +1,26 @@
+import { appliedMessages } from "../dataTypes/dataTypes";
 import type { ApplicationResponseModel } from "./ApplicationList";
 
-export default function ApplicationRow(data: ApplicationResponseModel) {
+type ApplicationRowProps = {
+    applicationData: ApplicationResponseModel,
+    onClick: () => void
+}
 
-    console.log(data.status)
+export default function ApplicationRow(props: ApplicationRowProps) {
+    const { applicationData: data, onClick } = props;
+
+    const date = data.date_applied.slice(0, 10)
     return (
-        <li key={data.id} className="border p-4 rounded shadow">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h3 className="font-bold">{data.offer_title}</h3>
-                    <p className="text-sm text-gray-600">{data.company_name}</p>
+        <li key={data.id} className="border border-black/25 hover:bg-white transition-colors shadow">
+            <button className="w-full cursor-pointer text-left" onClick={onClick}>
+                <div className="text-sm p-2 flex gap-2 items-center truncate">
+                    <p className="max-w-80 truncate">{data.offer_title ?? "Titre de l'offre inconnu"}</p>
+                    <p className="text-gray-600">|</p>
+                    <p className="text-gray-600">{data.company_name ?? "Entreprise inconnue"}</p>
+                    <p className="text-gray-600 grow"></p>
+                    <p className="text-gray-600"><span className="font-medium">{appliedMessages[data.status] + (data.status == "status.applied" && ` le ${date}`)}</span></p>
                 </div>
-                <span className="text-sm text-gray-500">{data.date_applied}</span>
-            </div>
-            {data.offer_link && (
-                <a href={data.offer_link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
-                    Voir
-                </a>
-            )}
-            {data.notes && (
-                <p className="mt-2 text-sm text-gray-700">{data.notes}</p>
-            )}
+            </button>
         </li>
     )
 }

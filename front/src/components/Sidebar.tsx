@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router"
 const styles = {
     h2: "text-2xl font-bold mb-4",
     li: "mb-2",
-    currentLink: "text-white",
-    link: "text-gray-400 hover:text-white"
+    currentLink: "text-white inline-block w-full",
+    link: "text-gray-400 hover:text-white inline-block w-full"
 }
 
 const navLinks = [

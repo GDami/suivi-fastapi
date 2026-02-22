@@ -1,19 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import ApplicationRow from "./ApplicationRow";
-
-type ApplicationStatus = {
-    APPLIED: "Applied",
-    INTERVIEWING: "Interviewing",
-    REJECTED: "Rejected",
-    ACCEPTED: "Accepted"
-}
+import type { appliedMessages } from "../dataTypes/dataTypes";
 
 export type ApplicationResponseModel = {
     id: number
     cv_id: number | null
     offer_id: number
     date_applied: string
-    status: ApplicationStatus
+    status: keyof typeof appliedMessages
     notes: string | null
     offer_title: string | null
     offer_link: string | null
@@ -45,9 +39,9 @@ export default function ApplicationList() {
     return (
         <div className="p-4">
             <h2 className="text-xl font-semibold mb-4">Candidatures ({data.length})</h2>
-            <ul className="space-y-4">
+            <ul className="space-y-2">
                 {data.map((app: ApplicationResponseModel) => (
-                    <ApplicationRow key={app.id} {...app} />
+                    <ApplicationRow applicationData={app} onClick={() => console.log("Clicked on application with ID:", app.id)} />
                 ))}
             </ul>
         </div>

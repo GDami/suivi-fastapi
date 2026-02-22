@@ -21,10 +21,10 @@ class Offer(SQLModel, table=True):
     applications: list["Application"] = Relationship(back_populates="offer")
 
 class ApplicationStatus(Enum):
-    APPLIED = "Applied"
-    INTERVIEWING = "Interviewing"
-    REJECTED = "Rejected"
-    ACCEPTED = "Accepted"
+    APPLIED = "status.applied"
+    INTERVIEWING = "status.interviewing"
+    REJECTED = "status.rejected"
+    ACCEPTED = "status.accepted"
 
 class Application(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
