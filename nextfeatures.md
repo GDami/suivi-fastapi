@@ -4,7 +4,13 @@
 
 Applications
 
-- applications list formatting
 - applications sorting/filtering
-- 
+- new application page
 
+Analytics
+
+- Stats page
+
+Back
+
+- unique fields in offer (link) and company (name)
