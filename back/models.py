@@ -7,7 +7,7 @@ import sqlalchemy as sa
 # Define models
 class Company(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
-    name: str
+    name: str = Field(sa_column=sa.Column("name", sa.VARCHAR(), unique=True))
     link: str | None = None
     offers: list["Offer"] = Relationship(back_populates="company")
 
