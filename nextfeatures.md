@@ -6,6 +6,9 @@ Applications
 
 - applications sorting/filtering
 - new application page
+    - fields :
+        - offer link OR choose an existing offer
+        - company name OR choose an existing company
 
 Analytics
 
@@ -13,4 +16,4 @@ Analytics
 
 Back
 
-- unique fields in offer (link) and company (name)
+- 
