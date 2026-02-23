@@ -2,7 +2,7 @@
 from datetime import datetime
 from enum import Enum
 from sqlmodel import Field, Relationship, SQLModel
-
+import sqlalchemy as sa
 
 # Define models
 class Company(SQLModel, table=True):
@@ -13,7 +13,7 @@ class Company(SQLModel, table=True):
 
 class Offer(SQLModel, table=True):
     id: int | None = Field(primary_key=True, index=True)
-    link: str
+    link: str = Field(sa_column=sa.Column("link", sa.VARCHAR(), unique=True))
     title: str
     description: str | None = None
     company_id: int | None = Field(default=None, foreign_key="company.id")
