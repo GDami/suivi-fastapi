@@ -6,7 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import SQLModel, Session, create_engine, select
 
+from dotenv import load_dotenv
+from os import getenv
+
 from models import ApplicationListResponse, Company, Offer, Application, CV, ApplicationStatus
+
+# Load .env
+load_dotenv()
 
 # FastAPI app
 app = FastAPI()
@@ -25,7 +31,10 @@ app.add_middleware(
 
 # Database setup
 # DATABASE_URL = "sqlite:///./database.db"
-DATABASE_URL = "postgresql+psycopg2://postgres:gregre123@localhost:5432/suivi-db"
+DATABASE_URL = getenv(
+    "SQLALCHEMY_DATABASE_URL", "postgresql+psycopg2://postgres:postgres@localhost:5432/suivi-db"
+)
+print(f"Using database URL: {DATABASE_URL}")
 engine = create_engine(DATABASE_URL, echo=True)
 SQLModel.metadata.create_all(engine)
 
