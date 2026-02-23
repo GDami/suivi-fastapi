@@ -3,3 +3,4 @@ pytest
 sqlmodel
 pydantic
 alembic
+psycopg2-binary

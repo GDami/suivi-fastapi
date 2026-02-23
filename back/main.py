@@ -24,8 +24,9 @@ app.add_middleware(
 )
 
 # Database setup
-DATABASE_URL = "sqlite:///./database.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}, echo=True)
+# DATABASE_URL = "sqlite:///./database.db"
+DATABASE_URL = "postgresql+psycopg2://postgres:gregre123@localhost:5432/suivi-db"
+engine = create_engine(DATABASE_URL, echo=True)
 SQLModel.metadata.create_all(engine)
 
 # Dependency to get DB session
