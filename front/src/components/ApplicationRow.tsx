@@ -11,7 +11,7 @@ export default function ApplicationRow(props: ApplicationRowProps) {
 
     const date = data.date_applied.slice(0, 10)
     return (
-        <li key={data.id} className="border border-black/25 hover:bg-white transition-colors shadow">
+        <li key={data.id} className="border border-black/25 hover:bg-white shadow">
             <button className="w-full cursor-pointer text-left" onClick={onClick}>
                 <div className="text-sm p-2 flex gap-2 items-center truncate">
                     <p className="max-w-80 truncate">{data.offer_title ?? "Titre de l'offre inconnu"}</p>
