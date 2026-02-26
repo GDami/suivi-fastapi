@@ -199,6 +199,32 @@ def populate_application_response(application: Application) -> ApplicationListRe
     }
     return response
 
+# Post a new application
+# With a single offer link
+# If the offer already exists in the database, we use it. If not, we create a new empty offer
+# Creates the new application, populates its offer_id, and returns it so the user can fill everything else in the frontend
+@app.post("/applications/link/", response_model=Application)
+async def create_application_from_offer_link(
+    offer: Offer,
+    session: Session = Depends(get_session)
+):
+    print(f"Creating application from offer link: {offer.link}")
+    offer_link = offer.link
+    offer = session.exec(select(Offer).where(Offer.link == offer_link)).first()
+    if not offer:
+        offer = Offer(link=offer_link, title="")
+        session.add(offer)
+        session.commit()
+        session.refresh(offer)
+    
+    application = Application(date_applied=datetime.now())
+    application.offer = offer
+    session.add(application)
+    session.commit()
+    session.refresh(application)
+    return application
+
+
 # Get applications with filters and sorting
 @app.get("/applications/")
 async def get_applications(
