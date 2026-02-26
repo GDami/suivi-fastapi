@@ -9,16 +9,12 @@ export function AddButton({ text }: AddButtonProps) {
     const [ open, setOpen ] = useState(false)
 
     const onClick = () => {
-        console.log("click")
         setOpen(true)
     }
 
     const onClickOutside = (event: React.MouseEvent) => {
-        console.log(event.target)
-        console.log(event.currentTarget)
         if (event.target === event.currentTarget) {
             setOpen(false)
-            console.log("click outside")
         }
     }
 
